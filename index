@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الإصابة في جداول الضرب  ~ Injury in multiplication table </title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .game-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            max-width: 800px;
+        }
+
+        #game-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #343a40;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        #game-subtitle {
+            font-size: 1.2rem;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+
+        #question-box {
+            font-size: 1.5rem;
+            background-color: #fdfd96;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        #question-box:hover {
+            transform: scale(1.02);
+        }
+
+        #falling-answers {
+            height: 300px;
+            overflow: hidden;
+            background-color: #e0f7fa;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .circle {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: #f0f0f0;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .circle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .circle.correct {
+            background-color: #28a745;
+            color: white;
+            animation: pulse 0.5s;
+        }
+
+        .circle.wrong {
+            background-color: #dc3545;
+            color: white;
+            animation: shake 0.5s;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .notification.success {
+            background-color: #28a745;
+        }
+
+        .notification.error {
+            background-color: #dc3545;
+        }
+
+        .btn-custom {
+            background-color: #007bff;
+            color: white;
+            transition: all 0.3s ease;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+        }
+
+        .btn-custom:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        #score-container {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .score-icon {
+            color: #ffc107;
+            margin-right: 5px;
+        }
+
+        @media (max-width: 768px) {
+            #question-box {
+                font-size: 1.2rem;
+                padding: 10px;
+            }
+
+            .circle {
+                width: 40px;
+                height: 40px;
+                line-height: 40px;
+                font-size: 0.9rem;
+            }
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        #question-box {
+            font-size: 24px;
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #e8f5e9;
+            border-radius: 5px;
+        }
+        #falling-answers {
+            position: relative;
+            height: 400px;
+            background-color: #f5f5f5;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+       
+      
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #2196F3;
+            color: white;
+        }
+        #result {
+            display: none;
+            font-size: 24px;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #e3f2fd;
+            border-radius: 5px;
+        }
+        .category {
+            font-size: 18px;
+            color: #666;
+            margin: 10px 0;
+        }
+        .footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 15px 0;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+            font-size: 16px;
+        }
+
+        .footer i {
+            margin-left: 5px;
+            color: #ffcc00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container text-center">
+        <div id="game-title">
+            <i class="fas fa-times score-icon"></i>
+            الإصابة في جداول الضرب 
+            <i class="fas fa-times score-icon"></i>
+        </div>
+        <div id="game-subtitle">ركز وأصب الهدف</div>
+
+        <div class="game-container mx-auto">
+            <div id="score-container" class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <i class="fas fa-star score-icon"></i>
+                    الدرجة: <span id="score">0</span> / <span id="total">0</span>
+                </div>
+            </div>
+            <div id="score-container" class="d-flex justify-content-between align-items-center mb-4">
+                <div class="stats">
+                    <div>النقاط: <span id="score">٠</span></div>
+                    <div>عدد الأسئلة: <span id="total">٠</span></div>
+                </div>
+            </div>
+            <div class="category" id="current-category"></div>
+
+            <div id="question-box"></div>
+
+            <div id="falling-answers"></div>
+
+            <div class="d-flex justify-content-around controls mt-4">
+                <button id="restart-btn" class="btn btn-custom" onclick="restartGame()">
+                    <i class="fas fa-redo-alt"></i> بدء من جديد
+                </button>
+                <button id="pause-btn" class="btn btn-custom" onclick="pauseGame()">
+                    <i class="fas fa-pause"></i> إيقاف مؤقت
+                </button>
+                <button id="end-btn" class="btn btn-custom" onclick="endGame()">
+                    <i class="fas fa-stop"></i> إنهاء
+                </button>
+            </div>
+
+            <div id="result" class="alert alert-info mt-4">
+                <i class="fas fa-trophy"></i> نتيجة اللعبة
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+    <div class="footer">
+        اشراف  المعلمة  : فوزية الأسمري 
+    </div>
+    <script>
+        const scoreEl = document.getElementById("score");
+        const totalEl = document.getElementById("total");
+        const questionBox = document.getElementById("question-box");
+        const fallingAnswers = document.getElementById("falling-answers");
+        const resultEl = document.getElementById("result");
+        const restartBtn = document.getElementById("restart-btn");
+        const pauseBtn = document.getElementById("pause-btn");
+        const endBtn = document.getElementById("end-btn");
+
+        let score = 0;
+        let totalQuestions = 0;
+        let isPaused = false;
+        let hasAnswered = false;
+        let isGameEnded = false;
+        let currentQuestion = null;
+        let lastQuestion = null;
+        let fallIntervals = [];
+
+        const multiplicationTable = {
+            'الآحاد': [
+                [2, 2], [2, 3], [2, 4]
+            ],
+            'العشرات': [
+                [2, 5], [2, 6], [2, 7], [2, 8], [2, 9],
+                [3, 4], [3, 5], [4, 4]
+            ],
+            'العشرينات': [
+                [4, 5], [3, 7], [3, 8], [3, 9], [4, 6], [4, 7]
+            ],
+            'الثلاثينات': [
+                [5, 6], [4, 8], [4, 9], [6, 6]
+            ],
+            'الأربعينات': [
+                [5, 8], [5, 9], [6, 7], [6, 8], [7, 7]
+            ],
+            'الخمسينات': [
+                [6, 9], [7, 8], [8, 8]
+            ],
+            'الستينات': [
+                [7, 9], [8, 8]
+            ],
+            'السبعينات': [
+                [8, 9]
+            ],
+            'الثمانينات': [
+                [9, 9]
+            ]
+        };
+
+        function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        function generateQuestion() {
+            const categories = Object.keys(multiplicationTable);
+            const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+            const pairs = multiplicationTable[randomCategory];
+            const randomPair = pairs[Math.floor(Math.random() * pairs.length)];
+
+            const [factor1, factor2] = randomPair;
+            const product = factor1 * factor2;
+
+            document.getElementById('current-category').textContent = randomCategory;
+            questionBox.textContent = `${factor1} × ${factor2} = ؟`.replace(/\d/g, (digit) => "٠١٢٣٤٥٦٧٨٩"[digit]);
+
+            const answers = new Set();
+            answers.add(product);
+
+            while (answers.size < 3) {
+                const wrongAnswer = randomInt(Math.max(1, product - 10), product + 10);
+                if (!answers.has(wrongAnswer) && wrongAnswer !== product) {
+                    answers.add(wrongAnswer);
+                }
+            }
+
+            return {
+                correctAnswer: product,
+                answers: Array.from(answers),
+            };
+        }
+
+        function dropAnswers(questionData) {
+            if (isGameEnded) return;
+
+            currentQuestion = questionData;
+            fallingAnswers.innerHTML = "";
+            hasAnswered = false;
+            totalQuestions++;
+            totalEl.textContent = `${totalQuestions}`.replace(/\d/g, (digit) => "٠١٢٣٤٥٦٧٨٩"[digit]);
+
+            const shuffledAnswers = questionData.answers.sort(() => Math.random() - 0.5);
+
+            shuffledAnswers.forEach((answer, index) => {
+                const circle = document.createElement("div");
+                circle.className = "circle";
+                circle.textContent = `${answer}`.replace(/\d/g, (digit) => "٠١٢٣٤٥٦٧٨٩"[digit]);
+                circle.style.left = `${index * 33 + 10}%`;
+                circle.style.top = `-50px`;
+
+                circle.onclick = () => {
+                    if (hasAnswered || isPaused || isGameEnded) return;
+                    hasAnswered = true;
+
+                    if (answer === questionData.correctAnswer) {
+                        circle.classList.add("correct");
+                        score++;
+                        scoreEl.textContent = `${score}`.replace(/\d/g, (digit) => "٠١٢٣٤٥٦٧٨٩"[digit]);
+                    } else {
+                        circle.classList.add("wrong");
+                        document.querySelectorAll(".circle").forEach((el) => {
+                            if (parseInt(el.textContent.replace(/[٠-٩]/g, (digit) => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(digit)])) === questionData.correctAnswer) {
+                                el.classList.add("correct");
+                            }
+                        });
+                    }
+
+                    setTimeout(() => {
+                        if (!isPaused && !isGameEnded) startGame();
+                    }, 1000);
+                };
+
+                fallingAnswers.appendChild(circle);
+                animateCircle(circle);
+            });
+        }
+
+        function animateCircle(circle) {
+            let top = parseInt(circle.style.top.replace("px", "")) || -50;
+            const fallSpeed = 1;
+
+            const fallInterval = setInterval(() => {
+                if (isPaused || isGameEnded) {
+                    clearInterval(fallInterval);
+                    return;
+                }
+
+                top += fallSpeed;
+                circle.style.top = `${top}px`;
+
+                if (top >= fallingAnswers.offsetHeight - circle.offsetHeight) {
+                    clearInterval(fallInterval);
+
+                    if (!hasAnswered && [...fallingAnswers.children].every((el) => parseInt(el.style.top) >= fallingAnswers.offsetHeight - el.offsetHeight)) {
+                        startGame();
+                    }
+                }
+            }, 20);
+
+            fallIntervals.push(fallInterval);
+        }
+
+        function resumeAnimations() {
+            const circles = document.querySelectorAll(".circle");
+            circles.forEach((circle) => animateCircle(circle));
+        }
+
+        function startGame() {
+            if (isPaused || isGameEnded) return;
+            const questionData = generateQuestion();
+            dropAnswers(questionData);
+        }
+
+        function restartGame() {
+            score = 0;
+            totalQuestions = 0;
+            scoreEl.textContent = "٠";
+            totalEl.textContent = "٠";
+            resultEl.style.display = "none";
+            isPaused = false;
+            isGameEnded = false;
+            hasAnswered = false;
+            lastQuestion = null;
+            fallIntervals.forEach(clearInterval);
+            fallIntervals = [];
+            startGame();
+        }
+
+        function pauseGame() {
+            if (isGameEnded) return;
+            isPaused = !isPaused;
+            pauseBtn.textContent = isPaused ? "استئناف" : "إيقاف مؤقت";
+            if (!isPaused) {
+                resumeAnimations();
+            }
+        }
+
+        function endGame() {
+            isPaused = true;
+            isGameEnded = true;
+            currentQuestion = null;
+            fallIntervals.forEach(clearInterval);
+            resultEl.style.display = "block";
+            resultEl.textContent = `انتهت اللعبة! النتيجة: ${score} / ${totalQuestions}`.replace(/\d/g, (digit) => "٠١٢٣٤٥٦٧٨٩"[digit]);
+        }
+
+        restartGame();
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
